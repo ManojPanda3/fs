@@ -6,6 +6,20 @@
 #define MAX_TMPPATH_LEN 2024
 typedef enum { False, True } Bool;
 
+int         StrictMode             = False;
+const int   DirIgnoreLen           = 6;
+const char* DirIgnore[DirIgnoreLen]= {"node_module", "vendor", "tmp",
+                                      "coverage",    "target", "build"};
+
+Bool isIn(char** arr, unsigned int arrLen, char* elm)
+{
+  for(int i= 0; i < arrLen; i++) {
+    if(arr[i] == elm) {
+      return True;
+    }
+  }
+  return False;
+}
 char* addStr(char* str1, char* str2)
 {
   if(str1 == NULL || str2 == NULL) {
@@ -83,7 +97,6 @@ int fileSearch(char* path, unsigned int pathLen, char* file,
   static unsigned int turn= 0;
   turn++;
   int isslash= (path[strlen(path) - 1] == '/');
-  // printf("%d-path: %s\n", turn, path);
 
   // just reading the directory
   DIR* dir;
@@ -97,7 +110,9 @@ int fileSearch(char* path, unsigned int pathLen, char* file,
       // if there a directory found then another function was called.
 
       if(strcmp(pt->d_name, ".") == 0 || strcmp(pt->d_name, "..") == -0 ||
-         pt->d_name[0] == '.') {
+
+         (!StrictMode && (pt->d_name[0] == '.' ||
+                          isIn(DirIgnore, DirIgnoreLen, pt->d_name)))) {
         continue;// avoiding looping;
       }
       char* tmpPath;
@@ -130,7 +145,9 @@ char* help()
          "-d "
          "or --dir : used for mentioning \n\t\tthe dir on which to search for "
          "the "
-         "file.\n\t\tdefault is ./";
+         "file.\n\t\tdefault is ./"
+         "\n -s/--strict : \n\t by thing flag you can also search inside . dir "
+         "and ignored dir";
 }
 int main(int argc, char* argv[])
 {
@@ -146,6 +163,9 @@ int main(int argc, char* argv[])
     } else if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
       printf("%s\n", help());
       return EXIT_SUCCESS;
+    } else if(!strcmp(argv[i], "--strict") || !strcmp(argv[i], "-s")) {
+      StrictMode= True;
+      continue;
     }
   }
   int   fileSLen= strlen(file);
@@ -154,7 +174,7 @@ int main(int argc, char* argv[])
   // printf("%s", addStr("Hello", "world"));
   if(fileSearch(path, pathLen, file, fileSLen, fileArr)) {
     printf("DONE\n");
-  };
+  }
   free(fileArr);
   return EXIT_SUCCESS;
 }
