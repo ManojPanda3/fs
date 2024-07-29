@@ -6,10 +6,10 @@
 #define MAX_TMPPATH_LEN 2024
 typedef enum { False, True } Bool;
 
-int         StrictMode             = False;
-const int   DirIgnoreLen           = 6;
-const char* DirIgnore[DirIgnoreLen]= {"node_module", "vendor", "tmp",
-                                      "coverage",    "target", "build"};
+int          StrictMode  = False;
+unsigned int DirIgnoreLen= 7;
+char*        DirIgnore[7]= {"node_module", "vendor", "tmp",
+                            "coverage",    "target", "build"};
 
 Bool isIn(char** arr, unsigned int arrLen, char* elm)
 {
@@ -89,8 +89,7 @@ int kmpSubStringSearching(char* text, unsigned int textLen, char* pattern,
 }
 // the crucial function which run recurcively to find available files mathching
 // with given file;
-int fileSearch(char* path, unsigned int pathLen, char* file,
-               unsigned int fileSLen, char* fileArr)
+int fileSearch(char* path, char* file, unsigned int fileSLen, char* fileArr)
 {
   // to know how much turn the program tack to find the file(turn mean how
   // many directory its searched for)
@@ -111,8 +110,9 @@ int fileSearch(char* path, unsigned int pathLen, char* file,
 
       if(strcmp(pt->d_name, ".") == 0 || strcmp(pt->d_name, "..") == -0 ||
 
-         (!StrictMode && (pt->d_name[0] == '.' ||
-                          isIn(DirIgnore, DirIgnoreLen, pt->d_name)))) {
+         (!StrictMode && (pt->d_name[0] == '.'
+
+                          || isIn(DirIgnore, DirIgnoreLen, pt->d_name)))) {
         continue;// avoiding looping;
       }
       char* tmpPath;
@@ -122,9 +122,8 @@ int fileSearch(char* path, unsigned int pathLen, char* file,
       } else {
         tmpPath= addStr(path, pt->d_name);
       }
-      unsigned int tmpPathLen= strlen(tmpPath);
       // NOTE:: The recursive func
-      fileSearch(tmpPath, tmpPathLen, file, fileSLen, fileArr);
+      fileSearch(tmpPath, file, fileSLen, fileArr);
       free(tmpPath);
       continue;
     }
@@ -169,10 +168,9 @@ int main(int argc, char* argv[])
     }
   }
   int   fileSLen= strlen(file);
-  int   pathLen = strlen(path);
   char* fileArr = patternArrCreator(file, fileSLen);
   // printf("%s", addStr("Hello", "world"));
-  if(fileSearch(path, pathLen, file, fileSLen, fileArr)) {
+  if(fileSearch(path, file, fileSLen, fileArr)) {
     printf("DONE\n");
   }
   free(fileArr);
