@@ -19,7 +19,7 @@ fs [file to search...] [options...] [argsOfOptions...]
 * **`fs [file]`:** Searches for the specified file in the current directory.
 * **`fs [file] -d [...dir]`:** Searches for the specified file within the provided directories. 
 * **`fs [file] -d [...dir] -s`:**  Enables **strict mode**. This prevents fs from skipping hidden folders, `.git` directories, and other commonly ignored folders like `node_modules`, `vendor`, `tmp`, `coverage`, `target`, and `build`.  Be warned, strict mode might slow down the search process.
-* **`fs [file] -r [regex]`:** Searches for the file using the specified regular expression.
+* **`fs [regex] -r`:** Searches for the file using the specified regular expression.
 
 **Examples:**
 
