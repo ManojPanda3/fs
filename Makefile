@@ -1,10 +1,7 @@
-CC = gcc
-CFLAGS = -Wall -Wextra
-CFLAGSAFTER = -lpcre2-8 
-TARGET = fs
-SRC_DIR = src
+all:
+	cmake -B build -S . && cmake --build build
 
-all: $(TARGET)
+clean:
+	rm -rf build
 
-$(TARGET): $(SRC_DIR)/main.c 
-	$(CC) $(CFLAGS) -o $(TARGET)  $< $(CFLAGSAFTER)
+.PHONY: all clean

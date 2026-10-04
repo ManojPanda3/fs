@@ -1,0 +1,128 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*'   # matches tags like v1.0, v2.3.4, etc.
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: amd64
+            artifact-name: fs-linux-amd64
+            container: ''   # no container
+          - os: ubuntu-latest
+            arch: arm64
+            artifact-name: fs-linux-arm64
+            container: arm64v8/ubuntu:latest   # use arm64 container for native arm64 build
+          - os: windows-latest
+            arch: amd64
+            artifact-name: fs-windows-amd64.exe
+            container: ''   # no container
+          - os: macos-latest
+            arch: amd64
+            artifact-name: fs-macos-amd64
+            container: ''   # no container
+
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up build environment (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpcre2-dev build-essential cmake
+
+      - name: Set up build environment (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install pcre2 cmake --no-progress
+
+      - name: Set up build environment (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install pcre2 cmake
+
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            cmake --build build --config Release
+          else
+            cmake --build build
+          fi
+
+      - name: Verify build
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            if [ ! -f "build/fs.exe" ] || [ ! -s "build/fs.exe" ]; then
+              echo "Executable not found or empty"
+              exit 1
+            fi
+          else
+            if [ ! -f "build/fs" ] || [ ! -s "build/fs" ]; then
+              echo "Executable not found or empty"
+              exit 1
+            fi
+          fi
+
+      - name: Prepare artifact
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            cp build/fs.exe fs.exe
+          else
+            cp build/fs fs
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: |
+            ${{ matrix.artifact-name }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to create release and upload assets
+    steps:
+      - name: Checkout code (for release metadata)
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            artifacts/fs-linux-amd64/fs-linux-amd64
+            artifacts/fs-linux-arm64/fs-linux-arm64
+            artifacts/fs-windows-amd64.exe/fs-windows-amd64.exe
+            artifacts/fs-macos-amd64/fs-macos-amd64

@@ -8,7 +8,7 @@
 
 As you can see from the image, `fs` (using the z-Algorithm) significantly outperforms the traditional `find` command, demonstrating its lightning-fast nature.
 
-### How to Use:
+### How to Use
 
 ```bash
 fs [file to search...] [options...] [argsOfOptions...] 
@@ -17,7 +17,7 @@ fs [file to search...] [options...] [argsOfOptions...]
 **Basic Usage:**
 
 * **`fs [file]`:** Searches for the specified file in the current directory.
-* **`fs [file] -d [...dir]`:** Searches for the specified file within the provided directories. 
+* **`fs [file] -d [...dir]`:** Searches for the specified file within the provided directories.
 * **`fs [file] -d [...dir] -s`:**  Enables **strict mode**. This prevents fs from skipping hidden folders, `.git` directories, and other commonly ignored folders like `node_modules`, `vendor`, `tmp`, `coverage`, `target`, and `build`.  Be warned, strict mode might slow down the search process.
 * **`fs [regex] -r`:** Searches for the file using the specified regular expression.
 
@@ -31,14 +31,14 @@ fs [file to search...] [options...] [argsOfOptions...]
 **Key Features:**
 
 * **🚀 Fast and Efficient:**  Leverages the z-Algorithm for rapid string matching.
-* **🔍 Regex Support:**  Supports regular expressions (using `pcre2`) for advanced search patterns using the `-r` flag. 
+* **🔍 Regex Support:**  Supports regular expressions (using `pcre2`) for advanced search patterns using the `-r` flag.
 * **🗃️ Recursive Directory Traversal:**  Efficiently scans through entire directory structures.
 * **🚫 Strict Mode:**  Option to include hidden folders and ignored directories in the search using the `-s` flag.
 * **🖥️ Single-Threaded:**  Currently runs on a single thread, but multi-threading support is planned for future releases.
 
 **Building:**
 
-fs is built using `pcre2` for regular expression support.  You can install pcre2 on your system and build fs using make. 
+fs is built using `pcre2` for regular expression support and uses CMake as the build system.  You can install pcre2 on your system and build fs using make.
 
 ```bash
 # Install pcre2 (e.g., on Ubuntu)
@@ -50,7 +50,7 @@ make
 
 **Current Build Support:**
 
-* **Linux (x86, ARM):**  Builds are currently available for Linux systems with x86 and ARM architectures. 
+* **Linux (x86, ARM):**  Builds are currently available for Linux systems with x86 and ARM architectures.
 
 **Get Started:**
 
@@ -58,6 +58,4 @@ make
 2. **Build:**  Follow the building instructions above.
 3. **Run:** `./fs [file]`
 
-**Let us know your feedback and suggestions to help us improve fs!** 
-
-
+**Let us know your feedback and suggestions to help us improve fs!**
