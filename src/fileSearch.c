@@ -1,14 +1,15 @@
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <dirent.h>
 #include <pcre2.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "fileIgnore.c"
-#define typedef enum { false, true } Bool;
+#include "fileIgnore.h"
 #define EXIT_FAIL 0
 #define MAX_PATH_LEN 350
+
 int fileSearch(char* path, char* file, pcre2_code* regex,
                pcre2_match_data* match_data, int strictMode)
 {

@@ -1,20 +1,27 @@
+#include <string.h>
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 #include <stdlib.h>
 
-#include "args.c"
-#include "fileSearch.c"
-#include "strMatch.c"
+#include "args.h"
+#include "fileIgnore.h"
+#include "fileSearch.h"
+#include "strMatch.h"
 
 int main(int argc, char* argv[])
 {
-  char** output= (char**)malloc(sizeof(char*));
-  argSetup(argc, argv, output);
-  char *            file= output[1], *path= output[0];
-  int               StrictMode= output[2][0];
+  ArgOutput argout= arg_setup(argc, argv);
+  if(argout.is_help) {
+    print_help();
+  }
+
+  if(argout.is_success == false) {
+    return EXIT_FAIL;
+  }
+
   pcre2_match_data* match_data;
-  pcre2_code*       regex= strMatch(file, &match_data);
-  fileSearch(path, file, regex, match_data, StrictMode);
+  pcre2_code*       regex= strMatch(argout.file, &match_data);
+  fileSearch(argout.path, argout.file, regex, match_data, argout.is_strict);
   pcre2_match_data_free(match_data);
   pcre2_code_free(regex);
   return EXIT_SUCCESS;
